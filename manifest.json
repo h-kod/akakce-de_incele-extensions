@@ -1,11 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Akakçe'de İncele",
-  "description": "Herhangi bir eticaret sitesinde ürün incelerken tıklandığında yeni sekmede ürünün akakçe sayfası açılır.",
-  "version": "1.4",
+  "description": "Herhangi bir eticaret sitesinde ürün incelerken tıklandığında yeni sekmede ürünün akakçe sayfası açılır ve ürün adı panoya kopyalanır.",
+  "version": "1.7",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "contextMenus",
+    "clipboardWrite",
+    "storage"
   ],
   "web_accessible_resources": [{
     "matches": ["<all_urls>"],
@@ -19,5 +22,27 @@
   },
   "action": {
     "default_icon": "newtabicon.png"
-  }
+  },
+  "commands": {
+    "search-akakce": {
+      "suggested_key": {
+        "default": "Alt+A"
+      },
+      "description": "Sayfadaki ürünü Akakçe'de incele"
+    }
+  },
+  "omnibox": {
+    "keyword": "ak"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.akakce.com/arama/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ]
 }

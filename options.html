@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Akakçe'de İncele - Seçenekler</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #161b26;
+      --bg-tertiary: #1f2638;
+      --accent: #2563eb;
+      --accent-hover: #3b82f6;
+      --success: #10b981;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: #2d3748;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .container {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #60a5fa, #2563eb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .section {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .setting-info {
+      flex: 1;
+    }
+
+    .setting-label {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .setting-desc {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--bg-tertiary);
+      transition: .3s;
+      border-radius: 34px;
+      border: 1px solid var(--border);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--text-muted);
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--accent);
+      border-color: var(--accent-hover);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+      background-color: white;
+    }
+
+    /* Button styles */
+    .btn {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.625rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .btn:hover {
+      background-color: var(--border);
+      border-color: var(--text-muted);
+    }
+
+    /* Alert toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background-color: var(--success);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <img src="newtabicon.png" class="logo" alt="Logo">
+        <h1>Akakçe'de İncele</h1>
+      </div>
+      <div class="subtitle">Uzantı Ayarları</div>
+    </header>
+
+    <!-- Clipboard Toggle Section -->
+    <div class="section">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label" style="display: flex; align-items: center; gap: 0.5rem;">
+            Aranan Kelimeyi Panoya Kopyala <span
+              style="background-color: var(--accent); color: white; font-size: 0.65rem; padding: 0.125rem 0.375rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;">YENİ</span>
+          </div>
+          <div class="setting-desc">Ürün tıklandığında veya kısayol tetiklendiğinde ürün başlığı otomatik olarak
+            panonuza kopyalanır.</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="copyToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Shortcut Keys Section -->
+    <div class="section">
+      <div class="setting-info">
+        <div class="setting-label" style="display: flex; align-items: center; gap: 0.5rem;">
+          Klavye Kısayolu <span
+            style="background-color: var(--accent); color: white; font-size: 0.65rem; padding: 0.125rem 0.375rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;">YENİ</span>
+        </div>
+        <div class="setting-desc">Sayfadaki ürünü hızlıca Akakçe'de incelemek için kısayol tuşu atayabilirsiniz.
+          Varsayılan kısayol <strong>Alt + A</strong>'dır.</div>
+      </div>
+      <button class="btn" id="shortcutBtn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+        Kısayol Tuşlarını Değiştir
+      </button>
+    </div>
+
+    <!-- Trimmer Info Section -->
+    <div class="section">
+      <div class="setting-info">
+        <div class="setting-label" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+          Arama Kırpıcı <span
+            style="background-color: var(--accent); color: white; font-size: 0.65rem; padding: 0.125rem 0.375rem; border-radius: 4px; font-weight: 700; text-transform: uppercase;">YENİ</span>
+        </div>
+        <div class="setting-desc">Akakçe arama çubuğundaki kelimeleri sağdan sola doğru tıklayıp silebilir, sola doğru
+          fareyle kayarak silinenleri geri yükleyebilirsiniz.</div>
+      </div>
+      <div
+        style="background-color: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+        <img src="trimmer_visual_only.png" style="width: 280px; border-radius: 6px; border: 1px solid var(--border);"
+          alt="Arama Kırpıcı">
+        <div
+          style="font-size: 0.75rem; color: var(--text-muted); text-align: center; line-height: 1.4; margin-top: 0.25rem;">
+          <strong>Silme</strong>: Tıklanan harf ve sağındakiler silinir (kırmızı önizleme).<br>
+          <strong>Geri Yükleme</strong>: Sönük harflerin üzerine gelinerek kelimeler geri eklenir (yeşil önizleme).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Ayarlar Kaydedildi</div>
+
+  <script src="options.js"></script>
+</body>
+
+</html>

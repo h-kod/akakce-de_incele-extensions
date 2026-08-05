@@ -1,0 +1,50 @@
+/* CSS for Akakce Search Query Segmented Trimmer */
+
+input#q.akakce-input-transparent:not(:focus) {
+  color: transparent !important;
+}
+
+.akakce-segmented-overlay {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  background: transparent;
+  box-sizing: border-box;
+  z-index: 10;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.akakce-char-span {
+  pointer-events: auto;
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: pre;
+  transition: color 0.1s ease, opacity 0.1s ease;
+}
+
+/* Strikethrough style for deleted characters */
+.akakce-char-span.deleted {
+  text-decoration: line-through;
+  opacity: 0.35;
+}
+
+/* Hover Preview: To Delete (Red) */
+.akakce-char-span.to-delete {
+  text-decoration: line-through !important;
+  color: #ef4444 !important;
+  opacity: 0.7 !important;
+}
+
+/* Hover Preview: To Restore (Green) */
+.akakce-char-span.to-restore {
+  text-decoration: none !important;
+  color: #10b981 !important;
+  opacity: 0.95 !important;
+}
