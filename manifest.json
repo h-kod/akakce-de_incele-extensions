@@ -3,6 +3,8 @@
   "name": "Akakçe'de İncele",
   "description": "Herhangi bir eticaret sitesinde ürün incelerken tıklandığında yeni sekmede ürünün akakçe sayfası açılır.",
   "version": "1.8",
+  "homepage_url": "https://github.com/h-kod/akakce-de_incele-extensions",
+  "privacy_policy": "https://github.com/h-kod/akakce-de_incele-extensions/blob/main/README.md",
   "permissions": [
     "activeTab",
     "scripting",
