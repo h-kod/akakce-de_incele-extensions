@@ -1,9 +1,12 @@
-/* CSS for Akakce Search Query Segmented Trimmer */
+/* Arama Kırpıcı — Akakce Search Trimmer */
 
+/* Hide native input text while overlay is active (but not when focused) */
 input#q.akakce-input-transparent:not(:focus) {
   color: transparent !important;
+  caret-color: transparent !important;
 }
 
+/* Overlay container: sits on top of the input */
 .akakce-segmented-overlay {
   position: absolute;
   display: flex;
@@ -11,40 +14,24 @@ input#q.akakce-input-transparent:not(:focus) {
   pointer-events: none;
   background: transparent;
   box-sizing: border-box;
-  z-index: 10;
+  z-index: 999;
   overflow: hidden;
   white-space: nowrap;
 }
 
+/* Each character span */
 .akakce-char-span {
   pointer-events: auto;
   display: inline-block;
   cursor: pointer;
   user-select: none;
-  font-family: inherit;
-  font-weight: inherit;
-  font-size: inherit;
-  line-height: inherit;
   white-space: pre;
-  transition: color 0.1s ease, opacity 0.1s ease;
+  transition: color 0.1s, opacity 0.1s;
 }
 
-/* Strikethrough style for deleted characters */
-.akakce-char-span.deleted {
-  text-decoration: line-through;
-  opacity: 0.35;
-}
-
-/* Hover Preview: To Delete (Red) */
+/* Hover preview: chars that will be deleted (red) */
 .akakce-char-span.to-delete {
-  text-decoration: line-through !important;
   color: #ef4444 !important;
-  opacity: 0.7 !important;
-}
-
-/* Hover Preview: To Restore (Green) */
-.akakce-char-span.to-restore {
-  text-decoration: none !important;
-  color: #10b981 !important;
-  opacity: 0.95 !important;
+  opacity: 0.6 !important;
+  text-decoration: line-through;
 }

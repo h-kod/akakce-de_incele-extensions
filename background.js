@@ -1,13 +1,33 @@
 chrome.action.onClicked.addListener(handleClick);
 
 chrome.runtime.onInstalled.addListener((details) => {
-  chrome.contextMenus.create({
-    id: "search-akakce",
-    title: "Akakçe'de Ara: \"%s\"",
-    contexts: ["selection"]
+  chrome.storage.local.get({ contextMenuEnabled: true }, (data) => {
+    chrome.contextMenus.removeAll(() => {
+      if (data.contextMenuEnabled) {
+        chrome.contextMenus.create({
+          id: "search-akakce",
+          title: "Akakçe'de Ara: \"%s\"",
+          contexts: ["selection"]
+        });
+      }
+    });
   });
   if (details.reason === 'update' || details.reason === 'install') {
     chrome.runtime.openOptionsPage();
+  }
+});
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === 'updateContextMenu') {
+    if (message.enabled) {
+      chrome.contextMenus.create({
+        id: "search-akakce",
+        title: "Akakçe'de Ara: \"%s\"",
+        contexts: ["selection"]
+      });
+    } else {
+      chrome.contextMenus.remove("search-akakce");
+    }
   }
 });
 

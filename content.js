@@ -1,104 +1,64 @@
-(function() {
-  // Check if we are on the Akakce search page and have a query
+(function () {
   const urlParams = new URLSearchParams(window.location.search);
   const urlQuery = urlParams.get('q');
   if (!urlQuery) return;
 
-  // Wait for the DOM to be fully loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTrimmer);
-  } else {
-    initTrimmer();
-  }
-
-  function initTrimmer() {
-    const input = document.getElementById('q');
-    if (!input) return;
-
-    // Capture the original text color before making it transparent
-    const originalColor = window.getComputedStyle(input).color || '#000000';
-
-    // Synchronize query state across page loads via sessionStorage
-    let originalQuery = sessionStorage.getItem('akakce_original_query');
-    let currentQuery = sessionStorage.getItem('akakce_current_query');
-
-    // Since we crop from right to left, urlQuery is a prefix of originalQuery
-    if (originalQuery && urlQuery && originalQuery.startsWith(urlQuery.trim())) {
-      currentQuery = urlQuery.trim();
+  chrome.storage.local.get({ trimmerEnabled: true }, (data) => {
+    if (!data.trimmerEnabled) return;
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
     } else {
-      // New search baseline
-      originalQuery = urlQuery.trim();
-      currentQuery = urlQuery.trim();
-      sessionStorage.setItem('akakce_original_query', originalQuery);
-      sessionStorage.setItem('akakce_current_query', currentQuery);
+      init();
     }
+  });
 
-    const endIndex = currentQuery.length;
+  function init() {
+    const input = document.getElementById('q');
+    if (!input || input.dataset.akakceTrimmer) return;
+    input.dataset.akakceTrimmer = '1';
 
-    // Apply custom transparent class to input (CSS hides the text)
+    const query = urlQuery.trim();
+    if (!query) return;
+
+    // Capture color before making text transparent
+    const textColor = window.getComputedStyle(input).color || '#222';
+
+    // Hide native input text
     input.classList.add('akakce-input-transparent');
 
-    // Create the overlay container
+    // Build overlay
     const overlay = document.createElement('div');
     overlay.className = 'akakce-segmented-overlay';
 
-    // Build the interactive character spans
     const spans = [];
-    for (let i = 0; i < originalQuery.length; i++) {
-      const char = originalQuery[i];
+    for (let i = 0; i < query.length; i++) {
       const span = document.createElement('span');
       span.className = 'akakce-char-span';
-      span.innerText = char === ' ' ? '\u00A0' : char; // Non-breaking space for correct layout
-      span.dataset.index = i;
+      span.textContent = query[i] === ' ' ? '\u00A0' : query[i];
+      span.dataset.i = i;
 
-      if (i < endIndex) {
-        span.classList.add('active');
-      } else {
-        span.classList.add('deleted');
-      }
-
-      // Hover event handlers
+      // Hover: highlight from this char to end (will be deleted)
       span.addEventListener('mouseenter', () => {
-        clearHoverClasses();
-        const idx = parseInt(span.dataset.index);
-        if (idx < endIndex) {
-          // Hovering active: preview deletion of everything from idx to endIndex - 1
-          // Mouse left side (0 to idx - 1) remains completely unchanged visually
-          for (let j = idx; j < endIndex; j++) {
-            spans[j].classList.add('to-delete');
-          }
-        } else {
-          // Hovering deleted: preview restoration of everything from endIndex to idx
-          for (let j = endIndex; j <= idx; j++) {
-            spans[j].classList.add('to-restore');
-          }
-        }
+        const idx = +span.dataset.i;
+        spans.forEach((s, j) => {
+          s.classList.toggle('to-delete', j >= idx);
+        });
       });
 
-      // Click event handler
+      // Click: submit query trimmed at this char
       span.addEventListener('click', (e) => {
         e.stopPropagation();
-        const idx = parseInt(span.dataset.index);
-        let newEndIndex = endIndex;
-
-        if (idx < endIndex) {
-          // Delete clicked character and everything to its right
-          newEndIndex = idx;
-        } else {
-          // Restore clicked character and everything to its left (up to active section)
-          newEndIndex = idx + 1;
-        }
-
-        const newQuery = originalQuery.substring(0, newEndIndex).trim();
+        const idx = +span.dataset.i;
+        const newQuery = query.slice(0, idx).trim();
         if (newQuery) {
-          sessionStorage.setItem('akakce_current_query', newQuery);
           input.value = newQuery;
           const form = input.closest('form');
-          if (form) {
-            form.submit();
-          }
+          if (form) form.submit();
         } else {
-          // If empty, focus the input to let the user type manually
+          // All deleted — restore input and remove overlay
+          overlay.remove();
+          input.classList.remove('akakce-input-transparent');
+          input.value = '';
           input.focus();
         }
       });
@@ -107,57 +67,67 @@
       spans.push(span);
     }
 
-    // Clear hover previews when leaving the overlay
-    overlay.addEventListener('mouseleave', clearHoverClasses);
-
-    // Insert overlay into DOM (inside the input's parent container)
-    input.parentNode.style.position = 'relative';
-    input.parentNode.appendChild(overlay);
-
-    // Position overlay matching input boundaries
-    function positionOverlay() {
-      const rect = input.getBoundingClientRect();
-      const parentRect = input.offsetParent.getBoundingClientRect();
-
-      overlay.style.left = `${rect.left - parentRect.left}px`;
-      overlay.style.top = `${rect.top - parentRect.top}px`;
-      overlay.style.width = `${rect.width}px`;
-      overlay.style.height = `${rect.height}px`;
-
-      // Copy exact typography and padding styles
-      const styles = window.getComputedStyle(input);
-      overlay.style.paddingLeft = styles.paddingLeft;
-      overlay.style.paddingRight = styles.paddingRight;
-      overlay.style.paddingTop = styles.paddingTop;
-      overlay.style.paddingBottom = styles.paddingBottom;
-      overlay.style.fontSize = styles.fontSize;
-      overlay.style.fontFamily = styles.fontFamily;
-      overlay.style.fontWeight = styles.fontWeight;
-      overlay.style.lineHeight = styles.lineHeight;
-      overlay.style.color = originalColor; // Apply the captured correct color
-    }
-
-    // Initial position
-    positionOverlay();
-
-    // Re-position on resize or window updates
-    window.addEventListener('resize', positionOverlay);
-
-    // Hide/show overlay on focus/blur
-    input.addEventListener('focus', () => {
-      overlay.style.visibility = 'hidden';
-    });
-    input.addEventListener('blur', () => {
-      setTimeout(() => {
-        overlay.style.visibility = 'visible';
-        positionOverlay();
-      }, 200);
+    overlay.addEventListener('mouseleave', () => {
+      spans.forEach(s => s.classList.remove('to-delete'));
     });
 
-    function clearHoverClasses() {
-      spans.forEach(s => {
-        s.classList.remove('to-delete', 'to-restore');
+    // Mount overlay
+    const container = input.parentElement;
+    container.style.position = 'relative';
+    container.appendChild(overlay);
+
+    // Sync overlay geometry with input
+    function position() {
+      const iRect = input.getBoundingClientRect();
+      const pRect = (input.offsetParent || container).getBoundingClientRect();
+      const cs = window.getComputedStyle(input);
+      Object.assign(overlay.style, {
+        left:          `${iRect.left - pRect.left}px`,
+        top:           `${iRect.top  - pRect.top}px`,
+        width:         `${iRect.width}px`,
+        height:        `${iRect.height}px`,
+        paddingLeft:   cs.paddingLeft,
+        paddingRight:  cs.paddingRight,
+        paddingTop:    cs.paddingTop,
+        paddingBottom: cs.paddingBottom,
+        fontSize:      cs.fontSize,
+        fontFamily:    cs.fontFamily,
+        fontWeight:    cs.fontWeight,
+        lineHeight:    cs.lineHeight,
+        color:         textColor,
       });
+    }
+    position();
+    window.addEventListener('resize', position);
+
+    // Focus → hide overlay (show native input)
+    input.addEventListener('focus', () => {
+      if (overlay.isConnected) overlay.style.display = 'none';
+    });
+
+    // Blur → restore overlay only if input is no longer focused
+    input.addEventListener('blur', () => {
+      if (!overlay.isConnected) return;
+      setTimeout(() => {
+        if (!overlay.isConnected) return;
+        if (document.activeElement === input) return; // still focused — don't restore
+        if (!input.value.trim()) {
+          disable();
+        } else {
+          overlay.style.display = 'flex';
+          position();
+        }
+      }, 150);
+    });
+
+    // Any user edit → disable trimmer permanently until page reload
+    input.addEventListener('input', disable);
+
+    function disable() {
+      window.removeEventListener('resize', position);
+      input.removeEventListener('input', disable);
+      overlay.remove();
+      input.classList.remove('akakce-input-transparent');
     }
   }
 })();
