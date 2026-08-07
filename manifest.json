@@ -4,7 +4,7 @@
   "description": "Herhangi bir eticaret sitesinde ürün incelerken tıklandığında yeni sekmede ürünün akakçe sayfası açılır.",
   "version": "1.8",
   "homepage_url": "https://github.com/h-kod/akakce-de_incele-extensions",
-  "privacy_policy": "https://github.com/h-kod/akakce-de_incele-extensions/blob/main/README.md",
+  "privacy_policy": "https://github.com/h-kod/akakce-de_incele-extensions/blob/main/PRIVACY_POLICY.md",
   "permissions": [
     "activeTab",
     "scripting",
@@ -12,18 +12,8 @@
     "clipboardWrite",
     "storage"
   ],
-  "web_accessible_resources": [
-    {
-      "matches": [
-        "<all_urls>"
-      ],
-      "resources": [
-        "newtabicon.png"
-      ]
-    }
-  ],
   "icons": {
-    "148": "newtabicon.png"
+    "128": "newtabicon.png"
   },
   "background": {
     "service_worker": "background.js"
