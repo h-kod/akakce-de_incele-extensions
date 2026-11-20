@@ -28,11 +28,25 @@ chrome.runtime.onMessage.addListener((message) => {
     }
   }
 });
+function openAkakceTab(tab, url, openNextToCurrentTab) {
+  const options = { url };
+  if (openNextToCurrentTab && tab && typeof tab.index === 'number') {
+    options.index = tab.index + 1;
+    options.windowId = tab.windowId;
+    options.openerTabId = tab.id;
+  }
+  chrome.tabs.create(options);
+}
+function openAkakceTabWithStoredPreference(tab, url) {
+  chrome.storage.local.get({ openNextToCurrentTab: false }, (settings) => {
+    openAkakceTab(tab, url, settings.openNextToCurrentTab);
+  });
+}
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "search-akakce" && info.selectionText) {
     const query = info.selectionText.trim();
     const searchUrl = 'https://www.akakce.com/arama/?q=' + encodeURIComponent(query);
-    chrome.tabs.create({ url: searchUrl });
+    openAkakceTabWithStoredPreference(tab, searchUrl);
   }
 });
 chrome.commands.onCommand.addListener((command) => {
@@ -47,7 +61,9 @@ chrome.commands.onCommand.addListener((command) => {
 chrome.omnibox.onInputEntered.addListener((text) => {
   if (text && text.trim()) {
     const searchUrl = 'https://www.akakce.com/arama/?q=' + encodeURIComponent(text.trim());
-    chrome.tabs.create({ url: searchUrl });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      openAkakceTabWithStoredPreference(tabs && tabs[0], searchUrl);
+    });
   }
 });
 function handleClick(tab) {
@@ -57,7 +73,7 @@ function executeSearchForTab(tab) {
   if (tab.url && tab.url.includes("akakce.com")) {
     return;
   }
-  chrome.storage.local.get({ copyToClipboard: true }, (settings) => {
+  chrome.storage.local.get({ copyToClipboard: true, openNextToCurrentTab: false }, (settings) => {
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: extractProductTitle,
@@ -71,10 +87,10 @@ function executeSearchForTab(tab) {
       if (title) {
         targetUrl = 'https://www.akakce.com/arama/?q=' + encodeURIComponent(title);
       }
-      chrome.tabs.create({ url: targetUrl });
+      openAkakceTab(tab, targetUrl, settings.openNextToCurrentTab);
     }).catch((err) => {
       console.error("Script execution failed:", err);
-      chrome.tabs.create({ url: 'https://www.akakce.com' });
+      openAkakceTab(tab, 'https://www.akakce.com', settings.openNextToCurrentTab);
     });
   });
 }
