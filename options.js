@@ -1,14 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
   const copyToggle = document.getElementById('copyToggle');
   const contextMenuToggle = document.getElementById('contextMenuToggle');
+  const openNextToCurrentToggle = document.getElementById('openNextToCurrentToggle');
   const trimmerToggle = document.getElementById('trimmerToggle');
   const shortcutBtn = document.getElementById('shortcutBtn');
   const toast = document.getElementById('toast');
 
   // Load current settings
-  chrome.storage.local.get({ copyToClipboard: true, contextMenuEnabled: true, trimmerEnabled: true }, (data) => {
+  chrome.storage.local.get({ copyToClipboard: true, contextMenuEnabled: true, openNextToCurrentTab: false, trimmerEnabled: true }, (data) => {
     copyToggle.checked = data.copyToClipboard;
     contextMenuToggle.checked = data.contextMenuEnabled;
+    openNextToCurrentToggle.checked = data.openNextToCurrentTab;
     trimmerToggle.checked = data.trimmerEnabled;
   });
 
@@ -31,6 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Save trimmer setting
   trimmerToggle.addEventListener('change', () => {
     chrome.storage.local.set({ trimmerEnabled: trimmerToggle.checked }, () => {
+      showToast();
+    });
+  });
+
+  // Save tab position setting
+  openNextToCurrentToggle.addEventListener('change', () => {
+    chrome.storage.local.set({ openNextToCurrentTab: openNextToCurrentToggle.checked }, () => {
       showToast();
     });
   });
